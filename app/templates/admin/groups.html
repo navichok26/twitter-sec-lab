@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>Manage Groups</h2>
+    
+    <div class="row">
+        <!-- Форма создания группы -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Create New Group</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="">
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            {{ form.name.label(class="form-label") }}
+                            {{ form.name(class="form-control") }}
+                            {% for error in form.name.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label") }}
+                            {{ form.description(class="form-control", rows=3) }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.owner_id.label(class="form-label") }}
+                            {{ form.owner_id(class="form-select") }}
+                            <small class="form-text text-muted">Select a user with Group Admin role</small>
+                        </div>
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Список групп -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Existing Groups</h4>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for group in groups %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ group.name }}</h5>
+                                <small>{{ group.posts|length }} posts</small>
+                            </div>
+                            <p class="mb-1">{{ group.description|truncate(100) }}</p>
+                            <small>Admin: {{ group.owner.username }}</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="jumbotron">
+    <h1 class="display-4">Security Twitter Lab</h1>
+    <p class="lead">Demonstration of RBAC + DAC security model implementation</p>
+    <hr class="my-4">
+    <p>This application implements 4 roles with different permissions:</p>
+    <ul>
+        <li><strong>Main Admin</strong> - Can do anything</li>
+        <li><strong>Group Admin</strong> - Full control within assigned groups</li>
+        <li><strong>User</strong> - Can create, edit, delete own posts, transfer ownership</li>
+        <li><strong>Guest</strong> - Can only view posts</li>
+    </ul>
+    <a class="btn btn-primary btn-lg" href="{{ url_for('main.posts_list') }}" role="button">View Posts</a>
+    {% if not current_user.is_authenticated %}
+    <a class="btn btn-success btn-lg" href="{{ url_for('main.register') }}" role="button">Register</a>
+    {% endif %}
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">RBAC</h5>
+                <p class="card-text">Role-Based Access Control. Users are assigned roles (Main Admin, Group Admin, User, Guest) that determine their base permissions.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">DAC</h5>
+                <p class="card-text">Discretionary Access Control. Post owners can transfer ownership to other users. Group admins own specific groups.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Policy Pattern</h5>
+                <p class="card-text">All permission checks are centralized in the Policy class, making security rules easy to understand and maintain.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

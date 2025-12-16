@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <!-- Список групп -->
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-header">
+                <h5>Groups</h5>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="{{ url_for('main.posts_list') }}" 
+                   class="list-group-item list-group-item-action {% if not current_group %}active{% endif %}">
+                    All Groups
+                </a>
+                {% for group in groups %}
+                <a href="{{ url_for('main.posts_list', group_id=group.id) }}" 
+                   class="list-group-item list-group-item-action {% if current_group and current_group.id == group.id %}active{% endif %}">
+                    {{ group.name }}
+                    {% if group.owner_id == current_user.id %}
+                    <span class="badge bg-primary float-end">Your Group</span>
+                    {% endif %}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Список постов -->
+    <div class="col-md-9">
+        {% if current_group %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h4>{{ current_group.name }}</h4>
+                <p class="text-muted">{{ current_group.description }}</p>
+                <p class="small">
+                    Group Admin: {{ current_group.owner.username }}
+                    {% if policy.can_manage_group(current_user, current_group) %}
+                    <span class="badge bg-success ms-2">You manage this group</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if posts %}
+            {% for post in posts %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">{{ post.title }}</h5>
+                    <p class="card-text">{{ post.content }}</p>
+                    
+                    <div class="text-muted small mb-3">
+                        <strong>Author:</strong> {{ post.author.username }} |
+                        <strong>Owner:</strong> {{ post.owner.username }} |
+                        <strong>Group:</strong> {{ post.group_ref.name }} |
+                        <strong>Created:</strong> {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}
+                        {% if post.updated_at != post.created_at %}
+                        | <strong>Updated:</strong> {{ post.updated_at.strftime('%Y-%m-%d %H:%M') }}
+                        {% endif %}
+                    </div>
+
+                    {% if current_user.is_authenticated %}
+                    <div class="btn-group btn-group-sm" role="group">
+                        {% if policy.can_edit_post(current_user, post) %}
+                        <a href="{{ url_for('main.edit_post', post_id=post.id) }}" class="btn btn-outline-primary">Edit</a>
+                        {% endif %}
+                        
+                        {% if policy.can_delete_post(current_user, post) %}
+                        <form action="{{ url_for('main.delete_post', post_id=post.id) }}" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Delete this post?')">Delete</button>
+                        </form>
+                        {% endif %}
+                        
+                        {% if policy.can_transfer_post(current_user, post) and post.owner_id == current_user.id %}
+                        <a href="{{ url_for('main.transfer_post', post_id=post.id) }}" class="btn btn-outline-warning">Transfer</a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="alert alert-info">
+            No posts in this group yet.
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('main.create_post') }}">Create the first post!</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
